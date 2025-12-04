@@ -141,17 +141,7 @@ python -m streamlit run streamlit_app.py
 
 ---
 
-### 4️⃣ Example
-
-Here’s what the Streamlit interface looks like:
-
-![Streamlit Interface]("path_to_screenshot_or_gif.gif")
-
-> Replace `assets/streamlit.png` with your actual screenshot or GIF file path.
-
----
-
-### 5️⃣ Notes
+### 4️⃣ Notes
 
 * Ensure FastAPI is running on `http://127.0.0.1:8000` or update the Streamlit code with your backend URL.
 
