@@ -25,3 +25,7 @@ annotated-types>=0.7.0
 typing-inspection>=0.4.2
 typing_extensions>=4.15.0
 six>=1.17.0
+
+
+#Streamlit
+Streamlit==1.52.0

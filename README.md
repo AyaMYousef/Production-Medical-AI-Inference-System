@@ -96,3 +96,65 @@ docker pull ghcr.io/<your-username>/dicom-autoencoder:latest
 ```
 
 ---
+
+## 📊 Streamlit Interface
+
+You can interact with the model through a simple web interface built with **Streamlit**.
+
+### 1️⃣ Installation
+
+Install Streamlit in your Python environment:
+
+```bash
+pip install streamlit
+```
+
+### 2️⃣ Running the Interface
+
+1. Start your FastAPI backend (if not already running):
+
+```bash
+uvicorn app:app --reload
+```
+
+2. Run the Streamlit app:
+
+```bash
+streamlit run streamlit_app.py
+```
+
+> If `streamlit` command is not found, use:
+
+```bash
+python -m streamlit run streamlit_app.py
+```
+
+3. Open your browser at [http://localhost:8501](http://localhost:8501).
+
+---
+
+### 3️⃣ Usage
+
+* Upload an image (PNG, JPG, or DICOM) using the file uploader.
+* Streamlit sends the file to the FastAPI backend for prediction.
+* The model’s prediction will be displayed on the interface.
+
+---
+
+### 4️⃣ Example
+
+Here’s what the Streamlit interface looks like:
+
+![Streamlit Interface]("path_to_screenshot_or_gif.gif")
+
+> Replace `assets/streamlit.png` with your actual screenshot or GIF file path.
+
+---
+
+### 5️⃣ Notes
+
+* Ensure FastAPI is running on `http://127.0.0.1:8000` or update the Streamlit code with your backend URL.
+
+---
+
+
