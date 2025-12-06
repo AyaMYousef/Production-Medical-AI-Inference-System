@@ -48,7 +48,7 @@ The FastAPI server will be available at `http://localhost:8000`.
 
 ## Training with RCA (Reconstruction-based Cleaning Autoencoder)
 
-The autoencoder is trained using an **iterative RCA loop** to remove images with the highest reconstruction error and retain clean normal images for training:
+The autoencoder is trained using an **iterative RCA loop** to remove images with the highest reconstruction error and retrain clean normal images for training:
 
 ```python
 X_current = X.copy()  # full dataset of normal images
@@ -172,7 +172,7 @@ python -m streamlit run streamlit_app.py
 
 ### 3️⃣ Usage
 
-* Upload an image (PNG, JPG, or DICOM) using the file uploader.
+* Upload an image ( DICOM) using the file uploader.
 * Streamlit sends the file to the FastAPI backend for prediction.
 * The model’s prediction will be displayed on the interface.
 

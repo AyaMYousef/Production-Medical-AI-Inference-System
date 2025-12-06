@@ -31,6 +31,8 @@ Thumbs.db
 # Notebook auto-generated files
 *.nbconvert
 *.jpynb
+*.ipynb
+notebook/
 
 # ---- Python data science ----
 # Large datasets
