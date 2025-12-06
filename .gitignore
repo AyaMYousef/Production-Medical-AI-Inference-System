@@ -57,7 +57,8 @@ datasets/
 *.sav
 *.joblib
 *.pt*
-
+*.pkl
+*.env
 
 #node modules
 /node_modules
