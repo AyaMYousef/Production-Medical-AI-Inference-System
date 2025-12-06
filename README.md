@@ -1,7 +1,3 @@
-Sure! Here’s an updated version of your README with the **RCA (Reconstruction-based Cleaning Autoencoder) loop** included under the training section, highlighting how the model is trained with cleaned normal images before computing the anomaly threshold:
-
----
-
 # DICOM AutoEncoder - Spine Anomaly Detection
 
 ## Description
