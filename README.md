@@ -194,3 +194,7 @@ http://127.0.0.1:8000
 * Batch inference support
 
 ---
+## 📢 Showcase
+
+I recently shared this project on [LinkedIn](https://www.linkedin.com/in/ayamyoussef/) to highlight its updates and performance improvements. Check it out for insights and discussion!
+
