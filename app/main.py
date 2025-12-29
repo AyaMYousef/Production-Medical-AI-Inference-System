@@ -43,4 +43,6 @@ async def predict(file: UploadFile = File(...) ):
 
     # Run prediction
     result = predict_anomaly(img, threshold=0.05)
+    if "inference_time_ms" not in result:
+        result["inference_time_ms"] = None
     return result

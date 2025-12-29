@@ -2,6 +2,7 @@ import pickle
 import numpy as np
 from tensorflow.keras.models import load_model
 import os
+import time
 
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -20,12 +21,17 @@ def predict_anomaly(image, threshold=0.05):
         threshold = THRESHOLD  
 
     image_batch = np.expand_dims(image, axis=0)
+    start = time.time()
+    # inference logic
     reconstructions = model.predict(image_batch)
+    end = time.time()
+    inference_time_ms = round((end - start) * 1000, 2)
     mse = np.mean((image - reconstructions[0]) ** 2)
-
+    
     return {
         "reconstruction_mse": float(mse),
-        "is_anomaly": bool(mse > threshold)
+        "is_anomaly": bool(mse > threshold),
+        "inference_time_ms":inference_time_ms
     }
 
 
