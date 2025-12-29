@@ -1,186 +1,196 @@
-# DICOM AutoEncoder - Spine Anomaly Detection
+# Production Medical AI Inference System  
+## Spine DICOM Anomaly Detection (AutoEncoder)
 
-## Description
+A **production-ready medical AI inference service** for detecting anomalies in spinal MRI DICOM images using a convolutional autoencoder.
 
-This project uses a convolutional autoencoder to identify abnormal patterns in spinal DICOM images. The model reconstructs input images and computes a reconstruction error; images with high error are flagged as anomalies.
+The system is designed as a **backend inference API**, not a research notebook, and can be integrated into downstream applications or clinical research pipelines.
 
-It provides a **FastAPI** endpoint for inference and is fully containerized with **Docker**, enabling easy deployment.
-
----
-
-## Features
-
-* Train and save AutoEncoder for spinal DICOM images
-* Detect anomalies using reconstruction error
-* **RCA-based training** to iteratively clean normal images
-* FastAPI API for inference
-* Dockerized for seamless deployment
-* CI/CD integration via GitHub Actions
+> ⚠️ This project is intended as a **decision-support system**, not a diagnostic tool.
 
 ---
 
-## Installation
+## 🧠 Problem
 
-### Clone repository
+Medical imaging systems often lack labeled anomaly data, making supervised classification difficult.  
+This project addresses that challenge by using **reconstruction-based anomaly detection** on spinal MRI DICOM images.
+
+The goal is to provide:
+- Reliable inference
+- Stable deployment
+- Clear API contracts
+- Production-oriented system design
+
+---
+
+## 💡 Solution Overview
+
+- A **convolutional autoencoder** trained on normal spinal MRI images
+- An **RCA (Reconstruction-based Cleaning Autoencoder)** training loop to iteratively remove noisy samples
+- A **FastAPI inference service** for real-time anomaly detection
+- Fully **Dockerized** with **CI/CD automation**
+- Optional **Streamlit UI** as a demo layer on top of the API
+
+---
+
+## 🏗 System Architecture
+
+```
+
+Client (Streamlit / API Consumer)
+↓
+FastAPI Inference Service
+↓
+DICOM Preprocessing
+↓
+AutoEncoder Reconstruction
+↓
+Reconstruction Error Scoring
+↓
+JSON Response + Logging
+
+```
+
+---
+
+## 📡 API Contract
+
+### **POST /predict**
+
+Runs anomaly inference on a single DICOM image.
+
+**Request**
+```
+
+POST /predict?threshold=<float>
+Content-Type: multipart/form-data
+
+````
+
+| Field | Type | Description |
+|------|------|-------------|
+| file | DICOM file | Spinal MRI image |
+
+**Response**
+```json
+{
+  "reconstruction_mse": 0.023,
+  "is_anomaly": true,
+  "inference_time_ms": 142
+}
+````
+
+---
+
+## 🧪 Model & Training Strategy
+
+### AutoEncoder
+
+* CNN-based encoder–decoder
+* Learns reconstruction of normal spinal MRI images
+* Anomalies detected via high reconstruction error
+
+### RCA (Reconstruction-based Cleaning Autoencoder)
+
+Training is performed in multiple iterations:
+
+1. Train autoencoder on current dataset
+2. Compute reconstruction errors
+3. Remove top percentile of high-error samples
+4. Retrain on cleaned dataset
+
+This improves robustness by ensuring only **clean normal images** define the anomaly threshold.
+
+---
+
+## 📦 Installation & Running
+
+### Docker (Recommended)
 
 ```bash
 git clone https://github.com/AyaMYousef/Dicom_AutoEncoder_Spine.git
 cd Dicom_AutoEncoder_Spine
-```
 
-### Using Docker
-
-1. Build Docker image:
-
-```bash
 docker build -t dicom-autoencoder:latest .
-```
-
-2. Run the container:
-
-```bash
 docker run -p 8000:8000 dicom-autoencoder:latest
 ```
 
-The FastAPI server will be available at `http://localhost:8000`.
+FastAPI will be available at:
 
----
-
-## Training with RCA (Reconstruction-based Cleaning Autoencoder)
-
-The autoencoder is trained using an **iterative RCA loop** to remove images with the highest reconstruction error and retrain clean normal images for training:
-
-```python
-X_current = X.copy()  # full dataset of normal images
-
-for loop in range(3):  # 3 RCA iterations
-    print(f"\n===== RCA Loop {loop+1} =====")
-
-    # Train AutoEncoder on CURRENT dataset
-    autoencoder.fit(
-        X_current, X_current,
-        epochs=30,
-        batch_size=16,
-        shuffle=True,
-        validation_split=0.1,
-        verbose=1
-    )
-
-    # Compute reconstruction errors
-    recon = autoencoder.predict(X_current)
-    errors = np.mean((X_current - recon)**2, axis=(1,2,3))
-
-    # Remove worst 10% images
-    threshold = np.percentile(errors, 90)
-    keep_idx = np.where(errors < threshold)[0]
-    X_current = X_current[keep_idx]
-
-    print("Remaining images:", X_current.shape)
 ```
-
-After RCA, the **final anomaly threshold** is computed on the fully cleaned training set, which is then used in inference to classify anomalies.
-
----
-
-## API
-
-**POST** `/predict?threshold=<value>`
-
-* **Request**: send a DICOM image as input
-* **Response**: JSON containing:
-
-  * `reconstruction_mse`: float
-  * `is_anomaly`: boolean
-
-Example:
-
-```json
-{
-  "reconstruction_mse": 0.023,
-  "is_anomaly": true
-}
+http://localhost:8000
 ```
 
 ---
 
-## GitHub Actions
+## 🚀 CI/CD & Deployment
 
-* The project includes a CI/CD workflow to:
+This repository includes a **GitHub Actions pipeline** that:
 
-  1. Build Docker image
-  2. Run tests (if configured)
-  3. Publish image to GitHub Container Registry (GHCR)
+1. Builds the Docker image
+2. Runs automated checks
+3. Publishes the image to **GitHub Container Registry (GHCR)**
 
----
-
-## Requirements
-
-* Python 3.11
-* TensorFlow 2.18.0
-* FastAPI, Uvicorn
-* OpenCV, Pydicom, NumPy, Pillow
-* Docker
-
----
-
-## Docker Image
-
-* Built and published via GitHub Actions
-* Pull image:
+Example pull:
 
 ```bash
-docker pull ghcr.io/<your-username>/dicom-autoencoder:latest
+docker pull ghcr.io/<username>/dicom-autoencoder:latest
 ```
+
+The service can be deployed to:
+
+* Railway
+* Render
+* AWS ECS / EC2
+* Any Docker-compatible platform
 
 ---
 
-## 📊 Streamlit Interface
+## 📊 Performance (Baseline)
+**How the baseline was calculated:**  
+The average inference latency was computed from multiple test runs of the model on sample DICOM and image files using a CPU. Each run measured the time taken for the model to reconstruct the input and compute the anomaly score (`inference_time_ms`). The minimum and maximum latencies observed across these runs are also reported to indicate variation. Model size limit is based on the saved model file and preprocessing constraints.
 
-You can interact with the model through a simple web interface built with **Streamlit**.
+| Metric                   | Value            |
+|--------------------------|----------------|
+| Avg inference latency     | ~103 ms (CPU)  |
+| Min inference latency     | 59 ms           |
+| Max inference latency     | 300 ms          |
+| Model size               | ~3.9 MB         |
+| Supported format         | DICOM (.dcm)    |
 
-### 1️⃣ Installation
+---
 
-Install Streamlit in your Python environment:
+## 🖥 Streamlit Demo (Optional)
 
-```bash
-pip install streamlit
-```
+A Streamlit interface is provided as a **demo UI** on top of the FastAPI backend.
 
-### 2️⃣ Running the Interface
+> The **FastAPI service is the core production component**.
+> Streamlit is used only for visualization and interaction.
 
-1. Start your FastAPI backend (if not already running):
-
-```bash
-uvicorn app:app --reload
-```
-
-2. Run the Streamlit app:
+### Run Streamlit
 
 ```bash
 streamlit run streamlit_app.py
 ```
 
-> If `streamlit` command is not found, use:
+Ensure FastAPI is running at:
 
-```bash
-python -m streamlit run streamlit_app.py
+```
+http://127.0.0.1:8000
 ```
 
-3. Open your browser at [http://localhost:8501](http://localhost:8501).
+---
+
+## 🔍 Logging & Observability
+
+* Structured request and error logging
+* Inference latency measured per request
+* Designed for easy integration with monitoring tools
 
 ---
 
-### 3️⃣ Usage
+## 🛠 Future Improvements
 
-* Upload an image ( DICOM) using the file uploader.
-* Streamlit sends the file to the FastAPI backend for prediction.
-* The model’s prediction will be displayed on the interface.
-
----
-
-### 4️⃣ Notes
-
-* Ensure FastAPI is running on `http://127.0.0.1:8000` or update the Streamlit code with your backend URL.
-* The RCA loop ensures that only **clean normal images** are used to compute the final anomaly threshold, improving the model’s sensitivity to true anomalies.
+* Grafana monitoring
+* Batch inference support
 
 ---
